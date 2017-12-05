@@ -1,14 +1,12 @@
 # Android Dockerfile
 
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 LABEL maintainer="Mobile Builds Eng <mobile-builds-eng@uber.com>"
 
 ARG ANDROID_COMPONENTS="platform-tools,android-23,build-tools-23.0.2,build-tools-24.0.0"
 
-# Sets language to UTF8: this works in pretty much all cases
 ENV LANG en_US.UTF-8
-RUN locale-gen $LANG
 
 ENV DOCKER_ANDROID_LANG en_US
 ENV DOCKER_ANDROID_DISPLAY_NAME mobileci-docker
@@ -19,7 +17,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Installing packages
 # Install Java
 # Clean Up Apt-get
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN dpkg --add-architecture i386 && apt update && apt install -y --no-install-recommends \
   autoconf \
   build-essential \
   bzip2 \
@@ -31,13 +29,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   lib32z1 \
   lib32z1-dev \
   lib32ncurses5 \
-  lib32bz2-1.0 \
+  libbz2-1.0:i386 \
   libc6-dev \
   libgmp-dev \
   libmpc-dev \
   libmpfr-dev \
   libxslt-dev \
   libxml2-dev \
+  locales \
   m4 \
   make \
   ncurses-dev \
@@ -51,11 +50,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   wget \
   zip \
   zlib1g-dev \
-  && apt-add-repository ppa:openjdk-r/ppa \
-  && apt-get update \
-  && apt-get -y install openjdk-8-jdk \
+  openjdk-8-jdk \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get clean
+
+# Sets language to UTF8: this works in pretty much all cases
+RUN locale-gen $LANG
 
 # Install Android SDK
 RUN mkdir -p /tmp/android-sdk \
